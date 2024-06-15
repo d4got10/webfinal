@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: webfinal
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db_dump.sql:/docker-entrypoint-initdb.d/db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser"]
+      interval: 10s
+      retries: 5
+
+  app:
+    build:
+      context: ./WebFinal
+      dockerfile: Dockerfile
+    container_name: my_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Default: postgres://postgres:password@postgres:5432/webfinal
+
+volumes:
+  pgdata:
