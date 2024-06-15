@@ -4,14 +4,21 @@ import TableBody from './TableBody/TableBody';
 import './Table.css';
 
 const Table = ({ data, currentPage, itemsPerPage, paginate, paginationEnabled }) => {
+    const showPagination = paginationEnabled && data.length > 0;
 
-    if (!paginationEnabled) {
+    if (!showPagination) {
         return (
             <div className="table-container">
-                <table>
-                    <TableHead data={data} />
-                    <TableBody data={data} />
-                </table>
+                {data.length > 0 ? (
+                    <table>
+                        <TableHead data={data} />
+                        <TableBody data={data} />
+                    </table>
+                ) : (
+                    <div className="no-data-message">
+                        <p>Нет данных, удовлетворяющих фильтрам</p>
+                    </div>
+                )}
             </div>
         );
     }
@@ -46,23 +53,31 @@ const Table = ({ data, currentPage, itemsPerPage, paginate, paginationEnabled })
 
     return (
         <div className="table-container">
-            <table>
-                <TableHead data={currentPageData} />
-                <TableBody data={currentPageData} />
-            </table>
-            {paginationEnabled && (
-                <div className="pagination">
-                    <button onClick={() => paginate(1)}>{'<<'}</button>
-                    {displayPages.map((number, index) => (
-                        <button
-                            key={index}
-                            onClick={() => paginate(number)}
-                            className={currentPage === number ? 'active' : ''}
-                        >
-                            {number}
-                        </button>
-                    ))}
-                    <button onClick={() => paginate(pageNumbers.length)}>{'>>'}</button>
+            {data.length > 0 ? (
+                <>
+                    <table>
+                        <TableHead data={currentPageData} />
+                        <TableBody data={currentPageData} />
+                    </table>
+                    {paginationEnabled && (
+                        <div className="pagination">
+                            <button onClick={() => paginate(1)}>{'<<'}</button>
+                            {displayPages.map((number, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => paginate(number)}
+                                    className={currentPage === number ? 'active' : ''}
+                                >
+                                    {number}
+                                </button>
+                            ))}
+                            <button onClick={() => paginate(pageNumbers.length)}>{'>>'}</button>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <div className="no-data-message">
+                    <p>Нет данных, удовлетворяющих фильтрам</p>
                 </div>
             )}
         </div>

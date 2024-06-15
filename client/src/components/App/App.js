@@ -3,49 +3,60 @@ import Table from '../Table/Table';
 import Controls from '../Controls/Controls';
 import Graph from '../Graph/Graph';
 import './App.css';
-import bananasData from '../../data/bananas';
 import { getSortFunction } from '../../utils/GetSortFunction';
+import { fetchServerData } from '../../api/Api';
 
 const App = () => {
   const [showTable, setShowTable] = useState(false);
-  const [filteredData, setFilteredData] = useState(bananasData);
-  const [selectedCountry, setSelectedCountry] = useState("Все страны");
-  const [sizeOrder, setSizeOrder] = useState("none");
-  const [weightOrder, setWeightOrder] = useState("none");
+  const [filteredData, setFilteredData] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState("Все регионы");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Все методы оплаты");
+  const [unitPriceOrder, setUnitPriceOrder] = useState("none");
+  const [totalRevenueOrder, setTotalRevenueOrder] = useState("none");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [paginationEnabled, setPaginationEnabled] = useState(true);
+  const [serverData, setServerData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchServerData();
+      setServerData(data);
+      setFilteredData(data);
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     applyFilter();
     setCurrentPage(1);
-  }, [selectedCountry, sizeOrder, weightOrder, paginationEnabled]);
+  }, [selectedRegion, selectedPaymentMethod, unitPriceOrder, totalRevenueOrder, paginationEnabled, serverData]);
 
   const toggleTable = () => {
     setShowTable(!showTable);
   };
 
   const applyFilter = () => {
-    let data = [...bananasData];
+    let data = [...serverData];
 
-    if (selectedCountry !== "Все страны") {
-      data = data.filter(d => d.Country === selectedCountry);
+    if (selectedRegion !== "Все регионы") {
+      data = data.filter(d => d.region === selectedRegion);
     }
 
-    let sizeSortFunction = getSortFunction("Size", sizeOrder, (a, b) => [a, b]);
-    let weightSortFunction = getSortFunction("Weight", weightOrder, (a, b) => [a, b]);
+    if (selectedPaymentMethod !== "Все методы оплаты") {
+      data = data.filter(d => d.paymentMethod === selectedPaymentMethod);
+    }
+    console.log(serverData)
+    let unitPriceSortFunction = getSortFunction("unitPrice", unitPriceOrder, (a, b) => a - b);
+    let totalRevenueSortFunction = getSortFunction("totalRevenue", totalRevenueOrder, (a, b) => a - b);
 
-    if (sizeOrder !== "none") {
-      if (sizeSortFunction) {
-        data.sort(sizeSortFunction);
-      }
+    if (unitPriceOrder !== "none" && unitPriceSortFunction) {
+      data.sort(unitPriceSortFunction);
     }
 
-    // Сортировка по весу
-    if (weightOrder !== "none") {
-      if (weightSortFunction) {
-        data.sort(weightSortFunction);
-      }
+    if (totalRevenueOrder !== "none" && totalRevenueSortFunction) {
+      data.sort(totalRevenueSortFunction);
     }
 
     setFilteredData(data);
@@ -55,21 +66,24 @@ const App = () => {
 
   return (
       <div className="app">
-        <h3>Список бананов</h3>
+        <h3>Список транзакций</h3>
         <Controls
-            selectedCountry={selectedCountry}
-            setSelectedCountry={setSelectedCountry}
-            sizeOrder={sizeOrder}
-            setSizeOrder={setSizeOrder}
-            weightOrder={weightOrder}
-            setWeightOrder={setWeightOrder}
+            selectedRegion={selectedRegion}
+            setSelectedRegion={setSelectedRegion}
+            selectedPaymentMethod={selectedPaymentMethod}
+            setSelectedPaymentMethod={setSelectedPaymentMethod}
+            unitPriceOrder={unitPriceOrder}
+            setUnitPriceOrder={setUnitPriceOrder}
+            totalRevenueOrder={totalRevenueOrder}
+            setTotalRevenueOrder={setTotalRevenueOrder}
             toggleTable={toggleTable}
             showTable={showTable}
-            countries={[...new Set(bananasData.map(banana => banana.Country))]}
+            regions={[...new Set(serverData.map(item => item.region))]}
+            paymentMethods={[...new Set(serverData.map(item => item.paymentMethod))]}
             setPaginationEnabled={setPaginationEnabled}
             paginationEnabled={paginationEnabled}
         />
-        <Graph data={bananasData} />
+        <Graph data={filteredData} />
         {showTable && (paginationEnabled ? (
             <Table
                 data={filteredData}

@@ -1,10 +1,11 @@
 export const fetchServerData = async () => {
     try {
-        const response = await fetch('YOUR_API_ENDPOINT_HERE');
+        const response = await fetch('http://localhost:80/Transactions/GetTransactions');
         if (!response.ok) {
             throw new Error('Network response was not ok ' + response.statusText);
         }
-        return await response.json();
+        let data = await response.json()
+        return data.transactions;
     } catch (error) {
         console.error('Error fetching data:', error);
         return [];

@@ -1,18 +1,22 @@
 import React from 'react';
 
 const Controls = ({
-                      selectedCountry,
-                      setSelectedCountry,
-                      sizeOrder,
-                      setSizeOrder,
-                      weightOrder,
-                      setWeightOrder,
+                      selectedRegion,
+                      setSelectedRegion,
+                      selectedPaymentMethod,
+                      setSelectedPaymentMethod,
+                      unitPriceOrder,
+                      setUnitPriceOrder,
+                      totalRevenueOrder,
+                      setTotalRevenueOrder,
                       toggleTable,
                       showTable,
-                      countries,
+                      regions,
+                      paymentMethods,
                       setPaginationEnabled,
                       paginationEnabled
                   }) => {
+
     const handleCheckboxChange = () => {
         setPaginationEnabled(!paginationEnabled);
     };
@@ -20,18 +24,28 @@ const Controls = ({
     return (
         <div className="controls">
             <label>
-                Выбор страны
-                <select value={selectedCountry} onChange={e => setSelectedCountry(e.target.value)}>
-                    <option value="Все страны">Все страны</option>
-                    {countries.map(country => (
-                        <option key={country} value={country}>{country}</option>
+                Выбор региона
+                <select value={selectedRegion} onChange={e => setSelectedRegion(e.target.value)}>
+                    <option value="Все регионы">Все регионы</option>
+                    {regions.map(region => (
+                        <option key={region} value={region}>{region}</option>
                     ))}
                 </select>
             </label>
             <br /><br />
             <label>
-                Сортировка по размеру
-                <select value={sizeOrder} onChange={e => setSizeOrder(e.target.value)}>
+                Выбор метода оплаты
+                <select value={selectedPaymentMethod} onChange={e => setSelectedPaymentMethod(e.target.value)}>
+                    <option value="Все методы оплаты">Все методы оплаты</option>
+                    {paymentMethods.map(method => (
+                        <option key={method} value={method}>{method}</option>
+                    ))}
+                </select>
+            </label>
+            <br /><br />
+            <label>
+                Сортировка по цене за единицу
+                <select value={unitPriceOrder} onChange={e => setUnitPriceOrder(e.target.value)}>
                     <option value="none">Без сортировки</option>
                     <option value="ascending">По возрастанию</option>
                     <option value="descending">По убыванию</option>
@@ -39,8 +53,8 @@ const Controls = ({
             </label>
             <br /><br />
             <label>
-                Сортировка по весу
-                <select value={weightOrder} onChange={e => setWeightOrder(e.target.value)}>
+                Сортировка по общей выручке
+                <select value={totalRevenueOrder} onChange={e => setTotalRevenueOrder(e.target.value)}>
                     <option value="none">Без сортировки</option>
                     <option value="ascending">По возрастанию</option>
                     <option value="descending">По убыванию</option>

@@ -16,90 +16,80 @@ const Graph = ({ data }) => {
         const innerWidth = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
 
-        const aggregateData = () => {
-            const sizeGroups = d3.group(data, d => Math.round(parseFloat(d.Size))); // Group by Size
-            const aggregatedData = Array.from(sizeGroups, ([size, values]) => {
-                return {
-                    Size: size,
-                    min: d3.min(values, d => parseFloat(d.HarvestTime)) + 5,
-                    max: d3.max(values, d => parseFloat(d.HarvestTime)) + 5,
-                    avg: d3.mean(values, d => parseFloat(d.HarvestTime)) + 5
-                };
-            });
-            return aggregatedData.sort((a, b) => a.Size - b.Size);
-        };
+        const parseDate = d3.timeParse("%Y-%m-%d");
+        const formatMonth = d3.timeFormat("%B");
 
-        const aggregatedData = aggregateData();
+        const aggregatedData = d3.rollup(data,
+            v => ({
+                min: d3.min(v, d => +d.totalRevenue),
+                avg: d3.mean(v, d => +d.totalRevenue),
+                max: d3.max(v, d => +d.totalRevenue)
+            }),
+            d => formatMonth(parseDate(d.date))
+        );
 
-        const x = d3.scaleLinear()
-            .domain(d3.extent(aggregatedData, d => d.Size))
-            .range([0, innerWidth]);
+        const formattedData = Array.from(aggregatedData, ([key, value]) => ({
+            month: key,
+            min: value.min,
+            avg: value.avg,
+            max: value.max
+        }));
+
+        formattedData.sort((a, b) => d3.ascending(parseDate(a.month), parseDate(b.month)));
+
+        const x = d3.scaleBand()
+            .domain(formattedData.map(d => d.month))
+            .range([0, innerWidth])
+            .padding(0.1);
 
         const y = d3.scaleLinear()
-            .domain([0, d3.max(aggregatedData, d => Math.max(Math.abs(d.min || 0), Math.abs(d.max || 0), Math.abs(d.avg || 0)))])
+            .domain([0, d3.max(formattedData, d => d3.max(selectedGraphs.map(graph => d[graph])))])
             .nice()
             .range([innerHeight, 0]);
 
         const chartGroup = svg.append('g')
             .attr('transform', `translate(${margin.left},${margin.top})`);
 
-        const lineGenerator = d3.line()
-            .x(d => x(d.Size))
-            .y(d => y(Math.abs(d)));
-
-        if (selectedGraphs.includes('min')) {
+        selectedGraphs.forEach(graph => {
             chartGroup.append("path")
-                .datum(aggregatedData)
-                .attr("class", "line-min")
-                .attr("d", lineGenerator.y(d => y(Math.abs(d.min))))
+                .datum(formattedData)
+                .attr("class", `line-${graph}`)
+                .attr("d", d3.line()
+                    .x(d => x(d.month) + x.bandwidth() / 2)
+                    .y(d => y(d[graph])))
                 .attr("fill", "none")
                 .attr("stroke-width", 2)
-                .attr("stroke", "green");
-        }
-
-        if (selectedGraphs.includes('avg')) {
-            chartGroup.append("path")
-                .datum(aggregatedData)
-                .attr("class", "line-avg")
-                .attr("d", lineGenerator.y(d => y(Math.abs(d.avg))))
-                .attr("fill", "none")
-                .attr("stroke-width", 2)
-                .attr("stroke", "blue");
-        }
-
-        if (selectedGraphs.includes('max')) {
-            chartGroup.append("path")
-                .datum(aggregatedData)
-                .attr("class", "line-max")
-                .attr("d", lineGenerator.y(d => y(Math.abs(d.max))))
-                .attr("fill", "none")
-                .attr("stroke-width", 2)
-                .attr("stroke", "red");
-        }
+                .attr("stroke", graphColors[graph]);
+        });
 
         chartGroup.append("g")
             .attr("class", "x axis")
             .attr("transform", `translate(0,${innerHeight})`)
-            .call(d3.axisBottom(x));
+            .call(d3.axisBottom(x))
+            .selectAll(".tick text")
+            .style("text-anchor", "middle")
+            .attr("dy", "1em");
 
         chartGroup.append("text")
             .attr("class", "axis-label")
             .attr("x", innerWidth / 2)
-            .attr("y", margin.bottom + 420)  // Учитываем отступ margin.bottom
+            .attr("y", innerHeight + margin.bottom - 5)
             .attr("text-anchor", "middle")
-            .text("Размер");
+            .text("Месяц");
 
         chartGroup.append("g")
             .attr("class", "y axis")
-            .call(d3.axisLeft(y));
+            .call(d3.axisLeft(y))
+            .selectAll("text")
+            .style("font-size", "12px");
 
         chartGroup.append("text")
             .attr("class", "axis-label")
             .attr("transform", "rotate(-90)")
             .attr("x", -innerHeight / 2)
-            .attr("y", -margin.left + 20)
+            .attr("y", -margin.left + 12)
             .attr("text-anchor", "middle")
-            .text("Время сбора");
+            .text("Общая прибыль");
 
     }, [data, selectedGraphs]);
 
@@ -111,10 +101,21 @@ const Graph = ({ data }) => {
         }
     };
 
+    const graphColors = {
+        min: 'green',
+        avg: 'blue',
+        max: 'red'
+    };
+
+
     return (
         <div>
             <svg ref={svgRef} width="960" height="500"></svg>
-            <GraphSelector graphs={selectedGraphs} handleGraphToggle={handleGraphToggle} />
+            <GraphSelector
+                graphs={selectedGraphs}
+                handleGraphToggle={handleGraphToggle}
+                graphColors={graphColors}
+            />
         </div>
     );
 };
