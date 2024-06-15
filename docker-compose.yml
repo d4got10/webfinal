@@ -23,26 +23,35 @@ services:
         condition: service_healthy
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db_dump.dump:/db_dump.dump
-    entrypoint: ["sh", "-c", "until pg_isready -h postgres -U postgres; do sleep 2; done && psql -h postgres -U postgres -d webfinal < db_dump.dump"]
+      - ./db.dump:/db.dump
+    entrypoint: [ "sh", "-c", "until pg_isready -h postgres -U postgres; do sleep 2; done && (psql -h postgres -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname = 'webfinal'\" | grep -q 1 || (psql -h postgres -U postgres -c 'CREATE DATABASE webfinal' && psql -h postgres -U postgres -d webfinal < db.dump))" ]
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: webfinal
       PGPASSWORD: password
 
+  frontend:
+    build:
+      context: client
+      dockerfile: Dockerfile
+    volumes:
+      - ./client:/app
+    command: npm start
+    ports:
+      - "3000:3000"
+
   app:
     build:
-      context: ./WebFinal
+      context: Server
       dockerfile: Dockerfile
     container_name: my_app
-    ports:
-        - "8080:8080"
     depends_on:
       db_loader:
         condition: service_completed_successfully
     environment:
       ConnectionStrings__Default: "Host=postgres;Username=postgres;Password=password;Database=webfinal"
-
+    ports:
+      - "80:8080"
 volumes:
   pgdata:
