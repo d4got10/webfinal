@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:16
     container_name: my_postgres
     environment:
       POSTGRES_USER: postgres
@@ -12,18 +12,19 @@ services:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      retries: 5
+      interval: 2s
+      retries: 20
 
   db_loader:
-    image: postgres:latest
+    image: postgres:16
     container_name: db_loader
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      - ./db.sql:/db.sql
-    entrypoint: ["sh", "-c", "until pg_isready -h postgres -U postgres; do sleep 2; done && psql -h postgres -U postgres -d webfinal < db.sql"]
+      - pgdata:/var/lib/postgresql/data
+      - ./db_dump.dump:/db_dump.dump
+    entrypoint: ["sh", "-c", "until pg_isready -h postgres -U postgres; do sleep 2; done && psql -h postgres -U postgres -d webfinal < db_dump.dump"]
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -35,6 +36,8 @@ services:
       context: ./WebFinal
       dockerfile: Dockerfile
     container_name: my_app
+    ports:
+        - "8080:8080"
     depends_on:
       db_loader:
         condition: service_completed_successfully
