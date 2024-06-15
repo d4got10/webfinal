@@ -6,7 +6,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["WebFinal.csproj", "."]
+COPY WebFinal.csproj .
+WORKDIR /src
 RUN dotnet restore "WebFinal.csproj"
 COPY . .
 RUN dotnet build "WebFinal.csproj" -c $BUILD_CONFIGURATION -o /app/build
