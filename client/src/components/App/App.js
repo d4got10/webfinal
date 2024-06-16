@@ -16,7 +16,7 @@ const App = () => {
   const [serverData, setServerData] = useState([]);
   const [sortCriteria, setSortCriteria] = useState([]);
   const [filters, setFilters] = useState([]);
-  const [accordionOpen, setAccordionOpen] = useState(true);
+  const [accordionOpen, setAccordionOpen] = useState(false);
 
   let columns = [];
   if (serverData.length > 0) {
