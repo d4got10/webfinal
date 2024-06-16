@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Table from '../Table/Table';
 import Controls from '../Controls/Controls';
 import Graph from '../Graph/Graph';
+import TableSorter from '../TableSorter/TableSorter';
+import TableFilter from '../TableFilter/TableFilter';
 import './App.css';
 import { getSortFunction } from '../../utils/GetSortFunction';
 import { fetchServerData } from '../../api/Api';
@@ -17,6 +19,24 @@ const App = () => {
   const [itemsPerPage] = useState(10);
   const [paginationEnabled, setPaginationEnabled] = useState(true);
   const [serverData, setServerData] = useState([]);
+  const [sortCriteria, setSortCriteria] = useState([]);
+  const [filters, setFilters] = useState([]);
+
+  let columns = []
+  if(serverData.length > 0) {
+    columns = Object.keys(serverData[0]);
+  }
+
+  const handleSortChange = (newCriteria) => {
+    setSortCriteria(newCriteria);
+    // Здесь вы можете обрабатывать новые критерии сортировки, например, отправлять их на сервер
+    console.log('Новые критерии сортировки:', newCriteria);
+  };
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+    console.log('Новые фильтры:', newFilters);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,6 +87,19 @@ const App = () => {
   return (
       <div className="app">
         <h3>Список транзакций</h3>
+        <div>
+          <h1>Сортировка и фильтрация таблицы</h1>
+          <TableSorter columns={columns} onSortChange={handleSortChange}/>
+          <div style={{marginTop: '20px'}}>
+            <h2>Текущие критерии сортировки</h2>
+            <pre>{JSON.stringify(sortCriteria, null, 2)}</pre>
+          </div>
+          <TableFilter columns={columns} data={serverData} onFilterChange={handleFilterChange}/>
+          <div style={{marginTop: '20px'}}>
+            <h2>Текущие фильтры</h2>
+            <pre>{JSON.stringify(filters, null, 2)}</pre>
+          </div>
+        </div>
         <Controls
             selectedRegion={selectedRegion}
             setSelectedRegion={setSelectedRegion}
@@ -83,7 +116,7 @@ const App = () => {
             setPaginationEnabled={setPaginationEnabled}
             paginationEnabled={paginationEnabled}
         />
-        <Graph data={filteredData} />
+        <Graph data={filteredData}/>
         {showTable && (paginationEnabled ? (
             <Table
                 data={filteredData}
