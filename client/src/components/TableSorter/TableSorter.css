@@ -1,0 +1,47 @@
+.sort-container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.sort-item {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.sort-item select {
+    margin-right: 10px;
+    padding: 8px;
+}
+
+.add-criteria-button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-criteria-button:hover {
+    background-color: #0056b3;
+}
+
+.remove-criteria-button {
+    padding: 8px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.remove-criteria-button:hover {
+    background-color: #c82333;
+}

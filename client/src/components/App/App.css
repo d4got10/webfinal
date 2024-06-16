@@ -2,14 +2,86 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
 }
 
-.controls {
+.filter-sort-section {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
     margin-bottom: 20px;
 }
 
-.graph-controls {
-    margin: 20px 0;
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    height: 1px;
+}
+
+.arrow {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.arrow-down {
+    transform: rotate(180deg);
+}
+
+.arrow-right {
+    transform: rotate(0deg);
+}
+
+.accordion-content {
+    margin-top: 10px;
+    transition: max-height 0.3s ease;
+    overflow: hidden;
+}
+
+.table-sorter, .table-filter {
+    width: 100%;
+    margin-bottom: 20px;
+
+}
+
+.current-sort-criteria, .current-filters {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
 }
 
 .table-container {
@@ -43,6 +115,7 @@ th, td {
 .pagination button.active {
     font-weight: bold;
 }
+
 .line-min {
     stroke: green;
 }
@@ -55,10 +128,10 @@ th, td {
     stroke: red;
 }
 
-
 svg text {
     font: 15px Verdana;
 }
+
 svg path, line {
     fill: none;
     stroke: #333333;

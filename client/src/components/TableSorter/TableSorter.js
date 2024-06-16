@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './TableSorter.css';
 
 const TableSorter = ({ columns, onSortChange }) => {
     const [sortCriteria, setSortCriteria] = useState([]);
@@ -29,10 +30,10 @@ const TableSorter = ({ columns, onSortChange }) => {
     };
 
     return (
-        <div>
-            <button onClick={handleAddCriteria}>Добавить критерий сортировки</button>
+        <div className="sort-container">
+            <button className="add-criteria-button" onClick={handleAddCriteria}>Добавить критерий сортировки</button>
             {sortCriteria.map((criteria, index) => (
-                <div key={index} style={{ marginTop: '10px' }}>
+                <div key={index} className="sort-item">
                     <select
                         value={criteria.column}
                         onChange={(e) => handleColumnChange(index, e.target.value)}
@@ -50,7 +51,7 @@ const TableSorter = ({ columns, onSortChange }) => {
                         <option value="asc">По возрастанию</option>
                         <option value="desc">По убыванию</option>
                     </select>
-                    <button onClick={() => handleRemoveCriteria(index)}>Удалить</button>
+                    <button className="remove-criteria-button" onClick={() => handleRemoveCriteria(index)}>Удалить</button>
                 </div>
             ))}
         </div>

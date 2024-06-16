@@ -1,19 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import './TableFilter.css';
 
 const TableFilter = ({ columns, data, onFilterChange }) => {
     const [filters, setFilters] = useState([]);
     const [uniqueValues, setUniqueValues] = useState({});
 
+    const isStringColumn = (column) => {
+        if (data.length === 0) return false;
+        const firstRowValue = data[0][column];
+        return typeof firstRowValue === 'string';
+    };
+
     useEffect(() => {
         const values = {};
         columns.forEach((col) => {
-            values[col] = [...new Set(data.map(item => item[col]))];
+            if (isStringColumn(col)) {
+                values[col] = [...new Set(data.map(item => item[col]))];
+            }
         });
         setUniqueValues(values);
     }, [columns, data]);
 
     const handleAddFilter = () => {
-        setFilters([...filters, { column: columns[0], value: '' }]);
+        const stringColumns = columns.filter(col => isStringColumn(col));
+        if (stringColumns.length > 0) {
+            setFilters([...filters, { column: stringColumns[0], value: '' }]);
+        }
     };
 
     const handleRemoveFilter = (index) => {
@@ -39,15 +51,15 @@ const TableFilter = ({ columns, data, onFilterChange }) => {
     };
 
     return (
-        <div>
-            <button onClick={handleAddFilter}>Добавить фильтр</button>
+        <div className="filter-container">
+            <button className="add-filter-button" onClick={handleAddFilter}>Добавить фильтр</button>
             {filters.map((filter, index) => (
-                <div key={index} style={{ marginTop: '10px' }}>
+                <div key={index} className="filter-item">
                     <select
                         value={filter.column}
                         onChange={(e) => handleColumnChange(index, e.target.value)}
                     >
-                        {columns.map((col) => (
+                        {columns.filter(col => isStringColumn(col)).map((col) => (
                             <option key={col} value={col}>
                                 {col}
                             </option>
@@ -64,7 +76,7 @@ const TableFilter = ({ columns, data, onFilterChange }) => {
                             </option>
                         ))}
                     </select>
-                    <button onClick={() => handleRemoveFilter(index)}>Удалить</button>
+                    <button className="remove-filter-button" onClick={() => handleRemoveFilter(index)}>Удалить</button>
                 </div>
             ))}
         </div>
