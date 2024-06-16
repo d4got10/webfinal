@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebFinal", "WebFinal\WebFinal.csproj", "{19204C13-2AF3-4386-A010-1B5A9CE1B378}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebFinal", "WebFinal.csproj", "{19204C13-2AF3-4386-A010-1B5A9CE1B378}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
