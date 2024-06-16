@@ -57,16 +57,22 @@ const App = () => {
       data = data.filter(d => d[filter.column] === filter.value);
     });
 
-    sortCriteria.forEach(criteria => {
-      const sortFunction = getSortFunction(criteria.column, criteria.order, (a, b) => {
-        if (typeof a === 'number' && typeof b === 'number') return a - b;
-        if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b);
-        return 0;
-      });
-      if (sortFunction) {
-        data.sort(sortFunction);
-      }
-    });
+    const compareFunction = (a, b) => {
+      if (typeof a === 'number' && typeof b === 'number') return a - b;
+      if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b);
+      return 0;
+    };
+
+    let sortFunction = (a, b) => 0;
+
+    for(let i = sortCriteria.length - 1; i >= 0; i--) {
+      const criteria = sortCriteria[i];
+      sortFunction = getSortFunction(criteria.column, criteria.order, compareFunction, sortFunction);
+    }
+
+    if(sortCriteria.length > 0){
+      data.sort(sortFunction);
+    }
 
     setFilteredData(data);
   };
